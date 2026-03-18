@@ -1,0 +1,25 @@
+# Render Infrastructure-as-Code Blueprint
+# Deploy with: https://render.com/deploy
+
+services:
+  - type: web
+    name: parth-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: parth-db
+          property: connectionString
+      - key: GROQ_API_KEY
+        sync: false   # You'll set this manually in Render dashboard
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://your-app.vercel.app,http://localhost:3000
+
+databases:
+  - name: parth-db
+    plan: free
+    databaseName: parthai
